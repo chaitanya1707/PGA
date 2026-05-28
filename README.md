@@ -8,19 +8,19 @@ A hardware implementation of a discrete Programmable Gain Amplifier (PGA) utiliz
 
 The circuit bridges two distinct power domains and logic families to achieve programmable analog amplification:
 
-* **The Amplifier Domain ($\pm15$V):** Built around the LM741 operational amplifier, utilizing high-headroom dual rails to prevent signal clipping during the 100x gain state.
-* **The Switch & Logic Domain ($\pm5$V):** The ADG1201 precision analog switches require a bipolar supply to pass the AC sine wave without clipping the negative cycle. 
-* **BJT Level Shifters:** Because standard microcontrollers output 0V to 5V TTL logic, a custom level-shifter circuit using 2N2222 BJTs and 6.2V Zener diodes was implemented. This successfully translates the unipolar 0-5V digital control signal into the bipolar $+5$V to $-5$V logic required to aggressively toggle the analog switches.
+* **The Amplifier Domain (±15V):** Built around the LM741 operational amplifier, utilizing high-headroom dual rails to prevent signal clipping during the 100x gain state.
+* **The Switch & Logic Domain (±5V):** The ADG1201 precision analog switches require a bipolar supply to pass the AC sine wave without clipping the negative cycle. 
+* **BJT Level Shifters:** Because standard microcontrollers output 0V to 5V TTL logic, a custom level-shifter circuit using 2N2222 BJTs and 6.2V Zener diodes was implemented. This successfully translates the unipolar 0-5V digital control signal into the bipolar +5V to -5V logic required to aggressively toggle the analog switches.
 
 ## The Engineering Challenge: The '11' State (100x Gain)
 
-In a standard theoretical PGA topology, achieving maximum gain (100x) involves closing multiple feedback branches in parallel. However, in physical hardware, the inherent ON-resistance ($R_{ON}$) of the ADG1201 CMOS switches introduces dynamic series resistance that scales non-linearly, causing severe gain deviation in the '11' logic state.
+In a standard theoretical PGA topology, achieving maximum gain (100x) involves closing multiple feedback branches in parallel. However, in physical hardware, the inherent ON-resistance Ron of the ADG1201 CMOS switches introduces dynamic series resistance that scales non-linearly, causing severe gain deviation in the '11' logic state.
 
 **The Solution:** Rather than simply increasing the global feedback resistance (which would exponentially increase the thermal noise floor and introduce parasitic low-pass filtering), a structural modification was applied. A dedicated third parallel branch was routed via an analog AND-gate configuration (Switch A wired in series with Switch B). This allows the 100x state to be manually trimmed independently of the 20x and 50x branches, maintaining high bandwidth and a low signal-to-noise ratio.
 
 ## Mitigating BJT Input Bias (DC Offset)
 
-The LM741 utilizes older BJT technology at its input stage, which draws a physical bias current (in the nanoamp range). Because the PGA constantly changes its source resistance ($R_{in}$) as it switches between gain states, this bias current creates a fluctuating DC voltage drop, shifting the output waveform off the 0V center axis. 
+The LM741 utilizes older BJT technology at its input stage, which draws a physical bias current (in the nanoamp range). Because the PGA constantly changes its source resistance Rin as it switches between gain states, this bias current creates a fluctuating DC voltage drop, shifting the output waveform off the 0V center axis. 
 
 During physical bench testing, this was mitigated by AC-coupling the oscilloscope channels. To perfectly mirror this physical bench-test condition in the LTSpice software validation, trace-level mathematics (`V(out) - V(offset)`) were applied directly in the waveform viewer to extract the pure AC transient response.
 
