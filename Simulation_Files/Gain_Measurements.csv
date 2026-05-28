@@ -1,0 +1,5 @@
+Logic State (A B),Target Gain,Input Amplitude (mV),Theoretical Output (mV),LTSpice Measured Output (mV)
+00,1x,25,25,24.9
+01,20x,25,500,522.9
+10,50x,25,1250,1315.3
+11,100x,25,2500,2586.7
